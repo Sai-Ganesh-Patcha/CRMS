@@ -683,6 +683,8 @@
     </div>
 
     <!-- Scripts -->
+    <!-- Config must be loaded first -->
+    <script src="../js/config.js"></script>
     <script src="../js/students1.js"></script>
     <script src="../js/students2.js"></script>
     <script src="../js/data.js"></script>
@@ -695,7 +697,7 @@
          * 🏁 Academic Operations Engine - Robust Logic Layer
          * Restores all missing functional modules and interactive features.
          */
-        const BASE_URL = 'http://localhost:5000/api/operator';
+        const BASE_URL = Config.getApiUrl('operator');
 
         const DataService = {
             async fetch(endpoint, fallback) {
