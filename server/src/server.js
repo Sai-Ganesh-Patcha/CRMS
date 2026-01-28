@@ -66,9 +66,16 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 // ======================
 // 🚨 FRONTEND SERVING (THIS FIXES NOT FOUND)
 // ======================
-// Logic: If running in 'src' folder, go up one level to find 'public'
-// If running in root (unlikely structure but possible), check 'public'
-const publicPath = path.join(__dirname, '../public');
+// Logic:
+// 1. Production: expect files in '../public' (copied during build)
+// 2. Development: expect files in '../../client' (monorepo structure)
+let publicPath = path.join(__dirname, '../public');
+
+// Check if production build exists, otherwise use dev client folder
+const fs = require('fs');
+if (!fs.existsSync(publicPath)) {
+    publicPath = path.join(__dirname, '../../client');
+}
 
 console.log('📂 Serving frontend from:', publicPath);
 app.use(express.static(publicPath));
