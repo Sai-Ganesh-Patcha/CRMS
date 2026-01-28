@@ -3,7 +3,7 @@
  * CRMS Backend
  */
 
-const config = require('../config/constants');
+const config = require('../../public/config/constants');
 
 /**
  * Require specific roles

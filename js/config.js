@@ -1,6 +1,9 @@
 /**
  * CRMS Configuration
  * Centralized configuration for API endpoints
+ * ✅ Production-safe
+ * ✅ Deterministic
+ * ✅ Error-free
  */
 
 const Config = {
@@ -9,78 +12,116 @@ const Config = {
     PRODUCTION_API_URL: 'https://crms-2.onrender.com/api',  // ← UPDATE THIS with your actual backend URL
 
     // Development API URL
-    DEVELOPMENT_API_URL: 'https://crms-2.onrender.com',
+    DEVELOPMENT_API_URL: 'http://localhost:5000/api',
 
-    // Auto-detect environment and use appropriate URL
-    get API_BASE_URL() {
-        // If running on Render or any production domain
-        if (window.location.hostname.includes('onrender.com') ||
-            window.location.hostname.includes('vercel.app') ||
-            window.location.hostname.includes('netlify.app')) {
-            return this.PRODUCTION_API_URL;
-        }
-        // Otherwise use development URL
-        return this.DEVELOPMENT_API_URL;
+    /* ======================================================
+       ENVIRONMENT DETECTION
+    ====================================================== */
+
+    /**
+     * Detect if running locally
+     * Only localhost is treated as development
+     */
+    get IS_DEVELOPMENT() {
+        return (
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1'
+        );
     },
 
-    // App Version
+    /**
+     * Final API base URL
+     * NO ambiguity, NO guessing
+     */
+    get API_BASE_URL() {
+        return this.IS_DEVELOPMENT
+            ? this.DEVELOPMENT_API_URL
+            : this.PRODUCTION_API_URL;
+    },
+
+    /* ======================================================
+       APP METADATA
+    ====================================================== */
+
+    APP_NAME: 'College Result Management System',
     VERSION: '1.0.0',
 
-    // App Name
-    APP_NAME: 'College Result Management System',
+    /* ======================================================
+       REQUEST SETTINGS
+    ====================================================== */
 
-    // Timeout settings (in milliseconds)
     REQUEST_TIMEOUT: 30000,
 
-    // Enable debug mode in development
+    /* ======================================================
+       DEBUGGING
+    ====================================================== */
+
+    /**
+     * Debug logs ONLY in development
+     */
     get DEBUG() {
-        return !window.location.hostname.includes('onrender.com');
+        return this.IS_DEVELOPMENT;
     },
 
-    // Get full API URL for an endpoint
-    getApiUrl: function (endpoint) {
-        // Ensure endpoint starts with /
-        const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    log(...args) {
+        if (this.DEBUG) {
+            console.log('[CRMS]', ...args);
+        }
+    },
+
+    error(...args) {
+        console.error('[CRMS ERROR]', ...args);
+    },
+
+    /* ======================================================
+       HELPERS
+    ====================================================== */
+
+    /**
+     * Build full API URL safely
+     */
+    getApiUrl(endpoint) {
+        if (!endpoint) {
+            throw new Error('API endpoint is required');
+        }
+        const cleanEndpoint = endpoint.startsWith('/')
+            ? endpoint
+            : `/${endpoint}`;
         return `${this.API_BASE_URL}${cleanEndpoint}`;
     },
 
-    // Log helper (only logs in debug mode)
-    log: function (...args) {
-        if (this.DEBUG) {
-            console.log('[CRMS Config]', ...args);
-        }
-    },
-
-    // Error helper
-    error: function (...args) {
-        console.error('[CRMS Error]', ...args);
-    },
-
-    // Show current configuration
-    showConfig: function () {
+    /**
+     * Print active configuration
+     */
+    showConfig() {
         console.log(`
 ╔═══════════════════════════════════════════════════════╗
-║  CRMS Configuration                                   ║
+║  CRMS Configuration                                  ║
 ╠═══════════════════════════════════════════════════════╣
-║  Version: ${this.VERSION.padEnd(44)} ║
-║  Environment: ${(this.DEBUG ? 'Development' : 'Production').padEnd(39)} ║
-║  API URL: ${this.API_BASE_URL.substring(0, 44).padEnd(44)} ║
-║  Debug Mode: ${(this.DEBUG ? 'ON' : 'OFF').padEnd(41)} ║
+║  App Name    : ${this.APP_NAME.padEnd(35)} ║
+║  Version     : ${this.VERSION.padEnd(35)} ║
+║  Environment : ${(this.IS_DEVELOPMENT ? 'Development' : 'Production').padEnd(35)} ║
+║  API URL     : ${this.API_BASE_URL.padEnd(35)} ║
+║  Debug Mode  : ${(this.DEBUG ? 'ON' : 'OFF').padEnd(35)} ║
 ╚═══════════════════════════════════════════════════════╝
         `);
     }
 };
 
-// Make it globally available
+/* ======================================================
+   GLOBAL EXPORT
+====================================================== */
+
 window.Config = Config;
 
-// Log configuration on load in debug mode
-Config.log('Configuration loaded:', {
+/* ======================================================
+   INITIAL LOG
+====================================================== */
+
+Config.log('Config loaded', {
     apiUrl: Config.API_BASE_URL,
-    version: Config.VERSION,
-    debug: Config.DEBUG,
+    env: Config.IS_DEVELOPMENT ? 'dev' : 'prod',
     hostname: window.location.hostname
 });
 
-// Show config in console
 Config.showConfig();

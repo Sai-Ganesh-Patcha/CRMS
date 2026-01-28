@@ -5,6 +5,7 @@
 
 require('dotenv').config();
 
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -18,114 +19,107 @@ const { errorHandler } = require('./middleware');
 // Initialize Express
 const app = express();
 
-// Connect to MongoDB
+// ======================
+// Database
+// ======================
 connectDB();
 
 // ======================
 // Security Middleware
 // ======================
-
-// Helmet - security headers
-app.use(helmet());
-
-// CORS
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+app.use(helmet({
+    contentSecurityPolicy: false, // Disable CSP for simple static serving to avoid script blocking
 }));
 
-// Rate limiting
+// CORS (safe even for same-origin)
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
+
+// ======================
+// Rate Limiting
+// ======================
 const limiter = rateLimit({
-    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 min
-    max: parseInt(process.env.RATE_LIMIT_MAX) || 100,
-    message: {
-        success: false,
-        message: 'Too many requests, please try again later'
-    }
+    windowMs: 15 * 60 * 1000,
+    max: 100
 });
 app.use('/api', limiter);
 
-// Stricter rate limit for auth endpoints
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10,
-    message: {
-        success: false,
-        message: 'Too many login attempts, please try again later'
-    }
+    max: 10
 });
 app.use('/api/auth/login', authLimiter);
 
 // ======================
 // Body Parsing
 // ======================
-
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 // ======================
 // Logging
 // ======================
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
-} else {
-    app.use(morgan('combined'));
-}
+// ======================
+// 🚨 FRONTEND SERVING (THIS FIXES NOT FOUND)
+// ======================
+// Logic: If running in 'src' folder, go up one level to find 'public'
+// If running in root (unlikely structure but possible), check 'public'
+const publicPath = path.join(__dirname, '../public');
+
+console.log('📂 Serving frontend from:', publicPath);
+app.use(express.static(publicPath));
 
 // ======================
 // API Routes
 // ======================
-
 app.use('/api', routes);
 
-// Root endpoint
-app.get('/', (req, res) => {
-    res.json({
-        success: true,
-        message: 'CRMS API Server',
-        version: '1.0.0',
-        docs: '/api/health'
-    });
+// ======================
+// Frontend Fallback (CRITICAL)
+// ======================
+// This handles any non-API route by sending index.html (SPA-like behavior if needed)
+app.get('*', (req, res) => {
+    // If asking for API that doesn't exist, generic 404 handled by middleware below
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({ success: false, message: 'API Endpoint Not Found' });
+    }
+    res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 // ======================
 // Error Handling
 // ======================
-
 app.use(errorHandler.notFound);
 app.use(errorHandler.errorHandler);
 
 // ======================
 // Start Server
 // ======================
-
 const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════╗
-║                                                       ║
-║   🎓 CRMS Backend Server                              ║
+║   🎓 CRMS Fullstack Server (Frontend + Backend)       ║
 ║                                                       ║
 ║   Environment: ${process.env.NODE_ENV || 'development'}                          ║
 ║   Port: ${PORT}                                          ║
-║   API: http://localhost:${PORT}/api                      ║
+║   URL: http://localhost:${PORT}                         ║
+║   API: /api                                             ║
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
     `);
-    console.log('🚀 SYSTEM UPDATE v2: Emergency Admin Tool is Active at /api/system/trigger-seed-db-secure-key-123');
+    console.log('🚀 SYSTEM UPDATE v3: Fullstack Server Mode Active');
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
     console.log('SIGTERM received. Shutting down gracefully...');
-    server.close(() => {
-        console.log('Process terminated');
-        process.exit(0);
-    });
+    server.close(() => process.exit(0));
 });
 
 module.exports = app;

@@ -4,7 +4,7 @@
  */
 
 const { Student, Result } = require('../models');
-const config = require('../config/constants');
+const config = require('../../public/config/constants');
 
 /**
  * Get own results (student only)

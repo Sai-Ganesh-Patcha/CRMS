@@ -4,7 +4,7 @@
  */
 
 const { Marks, Subject, Student, AuditLog } = require('../models');
-const config = require('../config/constants');
+const config = require('../../public/config/constants');
 
 /**
  * Enter marks for a student

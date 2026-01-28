@@ -7,7 +7,7 @@
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const config = require('../config/constants');
+const config = require('../../public/config/constants');
 
 const studentSchema = new mongoose.Schema({
     regno: {

@@ -5,7 +5,7 @@
  * Pure, tested functions for grade computation
  */
 
-const config = require('../config/constants');
+const config = require('../../public/config/constants');
 
 /**
  * Calculate grade from total marks
