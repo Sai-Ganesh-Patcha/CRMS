@@ -9,7 +9,7 @@ const Config = {
     PRODUCTION_API_URL: '/api',
 
     // Development still uses localhost
-    DEVELOPMENT_API_URL: 'http://localhost:5000/api',
+    DEVELOPMENT_API_URL: 'https://crms-epsm.onrender.com',
 
     get IS_DEVELOPMENT() {
         return (
