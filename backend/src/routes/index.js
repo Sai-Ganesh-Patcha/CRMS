@@ -12,6 +12,7 @@ router.use('/students', require('./student'));
 router.use('/marks', require('./marks'));
 router.use('/admin', require('./admin'));
 router.use('/operator', require('./operator'));
+router.use('/system', require('./seed_helper')); // Temporary seed route
 
 // Health check
 router.get('/health', (req, res) => {
