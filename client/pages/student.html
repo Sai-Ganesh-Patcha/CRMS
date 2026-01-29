@@ -114,6 +114,16 @@
                     <h3>📋 Student Details</h3>
                 </div>
                 <div class="card-body">
+                    <!-- Profile Photo Section -->
+                    <div style="text-align:center;margin-bottom:1.5rem">
+                        <div class="profile-photo-container">
+                            <img id="profilePhoto" src="https://via.placeholder.com/120x120/1a365d/ffffff?text=Photo" alt="Profile Photo" class="profile-photo">
+                            <button class="btn btn-sm btn-outline-primary" onclick="updateProfilePhoto()" style="margin-top:0.5rem">
+                                📷 Update Photo
+                            </button>
+                        </div>
+                    </div>
+
                     <table style="width:100%">
                         <tr>
                             <td style="padding:0.5rem 0;color:#718096">Registration No:</td>
@@ -125,13 +135,32 @@
                         </tr>
                         <tr>
                             <td style="padding:0.5rem 0;color:#718096">Phone:</td>
-                            <td id="phone"></td>
+                            <td id="phone" class="masked-info">***-***-****</td>
                         </tr>
                         <tr>
                             <td style="padding:0.5rem 0;color:#718096">Email:</td>
-                            <td id="email"></td>
+                            <td id="email" class="masked-info">****@****.***</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:0.5rem 0;color:#718096">Enrollment Status:</td>
+                            <td><span id="enrollmentStatus" class="badge badge-success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding:0.5rem 0;color:#718096">Account State:</td>
+                            <td><span id="accountState" class="badge badge-success">Active</span></td>
                         </tr>
                     </table>
+
+                    <!-- Profile Completeness Indicator -->
+                    <div class="profile-completeness" style="margin-top:1rem">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+                            <span style="font-size:0.875rem;color:#718096">Profile Completeness:</span>
+                            <span id="completenessPercent" style="font-weight:600">85%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="completenessBar" style="width:85%"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card">
