@@ -65,7 +65,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // Index for faster lookups
-userSchema.index({ username: 1 });
+// userSchema.index({ username: 1 }); // Removed to avoid duplicate index warning
 userSchema.index({ role: 1, isActive: 1 });
 
 // Hash password before saving

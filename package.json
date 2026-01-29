@@ -4,6 +4,7 @@
     "private": true,
     "scripts": {
         "start": "cd server && npm start",
+        "dev": "cd server && npm run dev",
         "server": "cd server && npm start",
         "install-all": "npm install && cd server && npm install",
         "build": "node scripts/build.js",

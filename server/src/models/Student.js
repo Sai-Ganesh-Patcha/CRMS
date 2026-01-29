@@ -88,8 +88,7 @@ const studentSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Indexes
-studentSchema.index({ regno: 1 });
+// Indexes (removed duplicate regno index since it's already unique)
 studentSchema.index({ departmentId: 1, batchYear: 1 });
 studentSchema.index({ regulationId: 1, currentSemester: 1 });
 
